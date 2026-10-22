@@ -1,3 +1,6 @@
+data/*
+!data/raw/
+!data/lerobot/
 data/raw/*
 data/lerobot/*
 outputs/*
