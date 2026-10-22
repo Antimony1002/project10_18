@@ -1,0 +1,19 @@
+{
+  "repo_id": "local/towel_folding",
+  "robot_type": "i2rt_yam_bimanual",
+  "fps": 30,
+  "task_override": "Fold the towel in half.",
+  "required_arm_sides": ["left", "right"],
+  "required_cameras": ["head", "left", "right"],
+  "reference_camera": "head",
+  "action_source": "leader",
+  "action_time_offset_ms": 0.0,
+  "min_episode_seconds": 3.0,
+  "min_rate_ratio": 0.8,
+  "max_camera_skew_ms": 25.0,
+  "max_joint_skew_ms": 25.0,
+  "max_gripper_skew_ms": 60.0,
+  "expected_image_height": 480,
+  "expected_image_width": 640,
+  "shuffle_seed": 42
+}

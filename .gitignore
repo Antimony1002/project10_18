@@ -1,0 +1,11 @@
+data/raw/*
+data/lerobot/*
+outputs/*
+reports/*
+!data/raw/.gitkeep
+!data/lerobot/.gitkeep
+!outputs/.gitkeep
+!reports/.gitkeep
+*.building
+__pycache__/
+*.py[cod]
