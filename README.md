@@ -3,6 +3,15 @@
 这个目录把原始 I2RT/NEDF3 episode 转为当前 LeRobot Dataset v3，并提供数据检查、ACT
 过拟合实验和正式训练入口。原始数据只读；转换结果和训练输出都与原始数据分开。
 
+## 原始 MCAP / 双腕数据入口
+
+如果数据只有 `metadata.json`、`episode_stats.json` 和 `data/*.mcap`，使用新增的
+[I2RT MCAP 转换使用说明](docs/i2rt_mcap_conversion.md)。该入口已按实际采集数据支持
+双臂 14 维状态/动作、左右腕视频、A/B/C/D 采集者，以及仅左臂模式；无需导出 NPZ、
+真实头部相机或 SuperInference 仓库。预检、转换、验证和 ACT 训练命令均见该说明。
+
+下文原有流程适用于具备 `exports/` 和三路真实相机的数据。
+
 ## 已确定的数据契约
 
 每个有效原始 episode 必须包含：

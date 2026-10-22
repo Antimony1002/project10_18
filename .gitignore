@@ -12,3 +12,9 @@ reports/*
 *.building
 __pycache__/
 *.py[cod]
+
+# Local converter environments and private machine settings
+.venv*/
+.superinference/
+.pytest_cache/
+.ruff_cache/

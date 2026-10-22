@@ -1,0 +1,9 @@
+# Example for the current all-positive rig. Verify against recording-time mapping.
+# This file contains only offline action signs, never CAN ports or serial numbers.
+arms:
+  left:
+    follower:
+      joint_directions: [1, 1, 1, 1, 1, 1, 1]
+  right:
+    follower:
+      joint_directions: [1, 1, 1, 1, 1, 1, 1]

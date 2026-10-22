@@ -1,0 +1,12 @@
+# Paths are relative to this manifest; separate directories determine ownership.
+# New episode_0000/0001 are included. Exclude only explicitly reviewed bad data.
+version: 1
+sources:
+  - path: ../data/raw/A
+    collector: A
+  # - path: ../data/raw/B
+  #   collector: B
+  # - path: ../data/raw/C
+  #   collector: C
+  # - path: ../data/raw/D
+  #   collector: D
