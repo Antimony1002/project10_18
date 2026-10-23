@@ -1,12 +1,13 @@
 # Paths are relative to this manifest; separate directories determine ownership.
+# This checkout stores the synced recorder output directly under data/A.
 # New episode_0000/0001 are included. Exclude only explicitly reviewed bad data.
 version: 1
 sources:
-  - path: ../data/raw/A
+  - path: ../data/A
     collector: A
-  # - path: ../data/raw/B
+  # - path: ../data/B
   #   collector: B
-  # - path: ../data/raw/C
+  # - path: ../data/C
   #   collector: C
-  # - path: ../data/raw/D
+  # - path: ../data/D
   #   collector: D
