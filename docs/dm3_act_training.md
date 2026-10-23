@@ -44,9 +44,14 @@ python -c "import torch, lerobot; print(torch.__version__, torch.cuda.is_availab
 如果安装日志准备替换镜像自带的 Torch，先停止并核对版本；LeRobot 0.4.4 接受
 Torch 2.2.1–2.10，截图所示 Torch 2.7.1 在范围内。
 
-## 4. 下载私有 Hugging Face 数据
+## 4. 将数据送入实例
 
-在实例中使用一个仅有该 Dataset 读取权限的 fine-grained token 登录；不要把 token 写入仓库或命令历史。
+2026-10-23 实测 DM3 实例无法连接 `huggingface.co:443`。若官方接口仍不可达，当前约 100 MB
+数据直接从 Mac 使用 SCP 复制；正式大数据改为 DM3/OSS 资产挂载。完整命令和排错见
+[DM3 ACT 独立操作复现报告](dm3_act_operator_runbook.md)。
+
+如果官方接口已经恢复，再在实例中使用一个仅有该 Dataset 读取权限的 fine-grained token 登录；
+不要把 token 写入仓库或命令历史。
 
 ```bash
 HF_ENDPOINT=https://huggingface.co hf auth login
