@@ -3,6 +3,10 @@
 这个目录把原始 I2RT/NEDF3 episode 转为当前 LeRobot Dataset v3，并提供数据检查、ACT
 过拟合实验和正式训练入口。原始数据只读；转换结果和训练输出都与原始数据分开。
 
+在 DM3 交互式 H20 实例上训练当前 I2RT 双臂数据，请直接按照
+[DM3 ACT 训练说明](docs/dm3_act_training.md)操作。该说明以平台固定的 LeRobot 0.4.4
+为准，包含实例选择、持久目录、私有 Hugging Face 数据下载、50 步冒烟测试和五条数据过拟合。
+
 ## 原始 MCAP / 双腕数据入口
 
 如果数据只有 `metadata.json`、`episode_stats.json` 和 `data/*.mcap`，使用新增的
