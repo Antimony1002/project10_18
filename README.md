@@ -1,4 +1,4 @@
-# ALOHA 双臂毛巾折叠：NEDF3 → LeRobot ACT
+# ALOHA 双臂：NEDF3 → LeRobot ACT
 
 这个目录把原始 I2RT/NEDF3 episode 转为当前 LeRobot Dataset v3，并提供数据检查、ACT
 过拟合实验和正式训练入口。原始数据只读；转换结果和训练输出都与原始数据分开。
