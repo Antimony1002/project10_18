@@ -1,0 +1,71 @@
+{
+  "dataset_root": "/home/users/zhengkefan_qizu/output/data/i2rt_a_dual_act_20261024_empty_tray_40train_10val",
+  "run_root": "/home/users/zhengkefan_qizu/output/runs/act_empty_tray_40train_10val_10k_20261024_230628",
+  "episodes": [
+    4,
+    9,
+    14,
+    19,
+    24,
+    29,
+    34,
+    39,
+    44,
+    49
+  ],
+  "ranking_metric": "episode_mean_chunk_mae",
+  "results": [
+    {
+      "checkpoint": "010000",
+      "step": 10000,
+      "frames_evaluated": 6988,
+      "episodes_evaluated": 10,
+      "frame_stride": 1,
+      "chunk_mae": 0.06587873512207217,
+      "episode_mean_chunk_mae": 0.06548923044115332,
+      "first_action_mae": 0.043392547573420565,
+      "left_arm_mae": 0.06490747661493368,
+      "left_gripper_mae": 0.0672132915367055,
+      "right_arm_mae": 0.06611749925570182,
+      "right_gripper_mae": 0.06893914897452907,
+      "per_episode_chunk_mae": {
+        "4": 0.07022858468082986,
+        "9": 0.07307831390021502,
+        "14": 0.0712168680746972,
+        "19": 0.06235660575109005,
+        "24": 0.06654936618937453,
+        "29": 0.06065824172424044,
+        "34": 0.057383769964624846,
+        "39": 0.06392632102124805,
+        "44": 0.07219914739397365,
+        "49": 0.05729508571123952
+      }
+    },
+    {
+      "checkpoint": "007000",
+      "step": 7000,
+      "frames_evaluated": 6988,
+      "episodes_evaluated": 10,
+      "frame_stride": 1,
+      "chunk_mae": 0.06597097358080194,
+      "episode_mean_chunk_mae": 0.06563636172785837,
+      "first_action_mae": 0.04356776928363578,
+      "left_arm_mae": 0.06381905027710885,
+      "left_gripper_mae": 0.07026871001971564,
+      "right_arm_mae": 0.06664578881830441,
+      "right_gripper_mae": 0.07053588865804176,
+      "per_episode_chunk_mae": {
+        "4": 0.06907601825810364,
+        "9": 0.07256226595321044,
+        "14": 0.07385721556782691,
+        "19": 0.06174215064654554,
+        "24": 0.0663037702213369,
+        "29": 0.058976202171505794,
+        "34": 0.05834758087605675,
+        "39": 0.06695540070366317,
+        "44": 0.07373790462673334,
+        "49": 0.05480510825360126
+      }
+    }
+  ]
+}

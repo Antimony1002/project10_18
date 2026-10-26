@@ -11,6 +11,7 @@ Mac 终端：
 ssh zhengkefan_qizu@101.132.150.51 -p 14424
 ```
 
+
 登录后确认 GPU：
 
 ```bash
@@ -358,4 +359,122 @@ nvidia-smi
 空托盘父 PID：1262423
 纸杯托盘父 PID：1262424
 W&B project：aloha-act-tray-validation
+```
+
+## 13. 离线验证 checkpoint
+
+以下验证只读取数据和模型，不连接机械臂。先登录服务器：
+
+```bash
+ssh zhengkefan_qizu@101.132.150.51 -p 14424
+```
+
+设置公共路径：
+
+```bash
+PROJECT=/home/users/zhengkefan_qizu/output/code/project10_18
+PYTHON=/home/users/zhengkefan_qizu/output/envs/act/bin/python
+EVAL_ROOT=/home/users/zhengkefan_qizu/output/eval/act_checkpoint_selection
+VAL_EPISODES=4,9,14,19,24,29,34,39,44,49
+cd "$PROJECT"
+mkdir -p "$EVAL_ROOT"
+```
+
+### 13.1 快速筛选空托盘 checkpoint
+
+每 5 帧评估一次 `5k/6k/7k/8k/10k`：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 "$PYTHON" scripts/evaluate_act_checkpoints.py \
+  --dataset-root /home/users/zhengkefan_qizu/output/data/i2rt_a_dual_act_20261024_empty_tray_40train_10val \
+  --repo-id Hydrogen1002/i2rt_a_dual_act_20261024_empty_tray_40train_10val \
+  --run-root /home/users/zhengkefan_qizu/output/runs/act_empty_tray_40train_10val_10k_20261024_230628 \
+  --checkpoints 005000,006000,007000,008000,010000 \
+  --episodes "$VAL_EPISODES" \
+  --frame-stride 5 \
+  --batch-size 16 \
+  --num-workers 4 \
+  --device cuda \
+  --output-dir "$EVAL_ROOT/empty_tray"
+```
+
+### 13.2 快速筛选纸杯托盘 checkpoint
+
+```bash
+CUDA_VISIBLE_DEVICES=1 "$PYTHON" scripts/evaluate_act_checkpoints.py \
+  --dataset-root /home/users/zhengkefan_qizu/output/data/i2rt_a_dual_act_20261024_cup_tray_40train_10val \
+  --repo-id Hydrogen1002/i2rt_a_dual_act_20261024_cup_tray_40train_10val \
+  --run-root /home/users/zhengkefan_qizu/output/runs/act_cup_tray_40train_10val_10k_20261024_230628 \
+  --checkpoints 005000,006000,007000,008000,010000 \
+  --episodes "$VAL_EPISODES" \
+  --frame-stride 5 \
+  --batch-size 16 \
+  --num-workers 4 \
+  --device cuda \
+  --output-dir "$EVAL_ROOT/cup_tray"
+```
+
+参数说明：
+
+- `--checkpoints`：需要比较的 checkpoint 文件夹名，以逗号分隔。
+- `--episodes`：完整验证 episode 编号，不得换成随机帧。
+- `--frame-stride 5`：每 5 帧取一帧，适合第一轮快速筛选。
+- `--frame-stride 1`：评估全部验证帧，用于最终候选复核。
+- `--batch-size`：显存不足时从 16 调成 8 或 4。
+- `--output-dir`：保存 `metrics.csv` 和 `metrics.json` 的目录。
+
+### 13.3 对候选 checkpoint 做全帧复核
+
+以 `7k` 和 `10k` 为例。空托盘：
+
+```bash
+CUDA_VISIBLE_DEVICES=0 "$PYTHON" scripts/evaluate_act_checkpoints.py \
+  --dataset-root /home/users/zhengkefan_qizu/output/data/i2rt_a_dual_act_20261024_empty_tray_40train_10val \
+  --repo-id Hydrogen1002/i2rt_a_dual_act_20261024_empty_tray_40train_10val \
+  --run-root /home/users/zhengkefan_qizu/output/runs/act_empty_tray_40train_10val_10k_20261024_230628 \
+  --checkpoints 007000,010000 \
+  --episodes "$VAL_EPISODES" \
+  --frame-stride 1 \
+  --batch-size 16 \
+  --num-workers 4 \
+  --device cuda \
+  --output-dir "$EVAL_ROOT/empty_tray_full"
+```
+
+纸杯托盘：
+
+```bash
+CUDA_VISIBLE_DEVICES=1 "$PYTHON" scripts/evaluate_act_checkpoints.py \
+  --dataset-root /home/users/zhengkefan_qizu/output/data/i2rt_a_dual_act_20261024_cup_tray_40train_10val \
+  --repo-id Hydrogen1002/i2rt_a_dual_act_20261024_cup_tray_40train_10val \
+  --run-root /home/users/zhengkefan_qizu/output/runs/act_cup_tray_40train_10val_10k_20261024_230628 \
+  --checkpoints 007000,010000 \
+  --episodes "$VAL_EPISODES" \
+  --frame-stride 1 \
+  --batch-size 16 \
+  --num-workers 4 \
+  --device cuda \
+  --output-dir "$EVAL_ROOT/cup_tray_full"
+```
+
+### 13.4 查看结果
+
+```bash
+column -s, -t < "$EVAL_ROOT/empty_tray_full/metrics.csv"
+column -s, -t < "$EVAL_ROOT/cup_tray_full/metrics.csv"
+```
+
+结果已经按照 `episode_mean_chunk_mae` 从低到高排列。该指标越低越好，但最终仍需用真机成功率决定模型。
+
+### 13.5 将结果下载到 Mac
+
+先退出 SSH，在 Mac 终端执行：
+
+```bash
+mkdir -p ~/act_checkpoint_evaluation
+
+scp -P 14424 -r \
+  zhengkefan_qizu@101.132.150.51:/home/users/zhengkefan_qizu/output/eval/act_checkpoint_selection/empty_tray_full \
+  zhengkefan_qizu@101.132.150.51:/home/users/zhengkefan_qizu/output/eval/act_checkpoint_selection/cup_tray_full \
+  ~/act_checkpoint_evaluation/
 ```
