@@ -84,6 +84,7 @@ def launch():
     parser.add_argument("--save-checkpoints", action="store_true")
     parser.add_argument("--num-processes", type=int, default=4)
     parser.add_argument("--cuda-visible-devices", default="0,1,2,3")
+    parser.add_argument("--dataset-root", type=Path)
     parser.add_argument("--dry-run", action="store_true")
     options = parser.parse_args()
     if options.steps < 1 or options.save_freq < 1 or options.num_processes < 1:
@@ -93,16 +94,18 @@ def launch():
     base = root / "pi0_base"
     tokenizer = root / "pi0_tokenizer"
     prepared = home / "output/models/project10_18_pi0/pi0_training_base"
-    dataset_root = home / "output/data/project10_18_pi0/i2rt_cup_place_then_carry_20261101_0116_0130"
+    dataset_root = options.dataset_root or (home / "output/data/project10_18_pi0/i2rt_cup_place_then_carry_20261101_0116_0130")
     split_path = Path(__file__).resolve().parents[1] / "configs/pi0_cup_place_then_carry_split.json"
     split = json.loads(split_path.read_text())
     train_episodes, val_episodes = split["train_episodes"], split["val_episodes"]
-    if len(train_episodes) != 12 or len(val_episodes) != 3:
-        raise RuntimeError("Expected a 12/3 episode split for the 15-episode pilot.")
-    if sorted(train_episodes + val_episodes) != list(range(15)):
-        raise RuntimeError("Train/validation episodes must partition 0..14 exactly.")
+    expected_episodes = split["expected_total_episodes"]
+    if not train_episodes or not val_episodes:
+        raise RuntimeError("Both train and validation must have complete episodes.")
+    if sorted(train_episodes + val_episodes) != list(range(expected_episodes)):
+        raise RuntimeError("Train/validation episodes must partition the dataset exactly.")
     info = json.loads((dataset_root / "meta/info.json").read_text())
-    if info["total_episodes"] != 15 or info["total_frames"] != 16769 or info["fps"] != 30:
+    if (info["total_episodes"] != expected_episodes
+            or info["total_frames"] != split["expected_total_frames"] or info["fps"] != 30):
         raise RuntimeError("Unexpected dataset version or frame count.")
     features = info["features"]
     expected = {"observation.images.left_wrist", "observation.images.right_wrist"}
@@ -136,7 +139,7 @@ def launch():
             if step.get("registry_name") == "tokenizer_processor":
                 step["config"]["tokenizer_name"] = str(tokenizer)
         (prepared / name).write_text(json.dumps(payload, indent=2))
-    prefix = "train_4gpu_" if options.save_checkpoints else "smoke_fixed_"
+    prefix = "train_pi0_" if options.save_checkpoints else "smoke_pi0_"
     run = home / "output/runs/project10_18_pi0" / (prefix + datetime.now().strftime("%Y%m%d_%H%M%S_%f"))
     run.parent.mkdir(parents=True, exist_ok=True)
     free_gib = shutil.disk_usage(run.parent).free / 1024**3
@@ -152,7 +155,7 @@ def launch():
         "--policy.dtype=bfloat16", "--policy.gradient_checkpointing=true",
         "--policy.compile_model=false", "--policy.train_expert_only=false",
         "--policy.freeze_vision_encoder=false", "--policy.push_to_hub=false",
-        "--dataset.repo_id=Hydrogen1002/i2rt_cup_place_then_carry_lerobot_20261101_0116_0130",
+        f"--dataset.repo_id={split['source_dataset']}",
         f"--dataset.root={dataset_root}",
         "--dataset.episodes=" + json.dumps(train_episodes),
         "--dataset.video_backend=pyav", f"--output_dir={run}",
