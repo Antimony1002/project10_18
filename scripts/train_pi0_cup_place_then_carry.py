@@ -94,15 +94,16 @@ def launch():
     base = root / "pi0_base"
     tokenizer = root / "pi0_tokenizer"
     prepared = home / "output/models/project10_18_pi0/pi0_training_base"
-    dataset_root = options.dataset_root or (home / "output/data/project10_18_pi0/i2rt_cup_place_then_carry_20261101_0116_0130")
+    dataset_root = options.dataset_root or (home / "output/data/project10_18_pi0/i2rt_cup_place_then_carry_60train_8val_pi0_act_v1")
     split_path = Path(__file__).resolve().parents[1] / "configs/pi0_cup_place_then_carry_split.json"
     split = json.loads(split_path.read_text())
     train_episodes, val_episodes = split["train_episodes"], split["val_episodes"]
     expected_episodes = split["expected_total_episodes"]
     if not train_episodes or not val_episodes:
         raise RuntimeError("Both train and validation must have complete episodes.")
-    if sorted(train_episodes + val_episodes) != list(range(expected_episodes)):
-        raise RuntimeError("Train/validation episodes must partition the dataset exactly.")
+    excluded_episodes = split.get("excluded_episodes", [])
+    if sorted(train_episodes + val_episodes + excluded_episodes) != list(range(expected_episodes)):
+        raise RuntimeError("Train, validation, and excluded episodes must partition the dataset exactly.")
     info = json.loads((dataset_root / "meta/info.json").read_text())
     if (info["total_episodes"] != expected_episodes
             or info["total_frames"] != split["expected_total_frames"] or info["fps"] != 30):
@@ -120,6 +121,7 @@ def launch():
         print("Prepared model (ours):", prepared)
         print("Train episodes:", train_episodes)
         print("Validation episodes:", val_episodes)
+        print("Excluded split segments:", excluded_episodes)
         print("No model or GPU was started.")
         return
     prepared.mkdir(parents=True, exist_ok=True)

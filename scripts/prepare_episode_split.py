@@ -55,6 +55,12 @@ def main() -> int:
         default=parse_indices(DEFAULT_VALIDATION_INDICES),
         help=f"comma-separated held-out episodes (default: {DEFAULT_VALIDATION_INDICES})",
     )
+    parser.add_argument(
+        "--exclude-indices",
+        type=parse_indices,
+        default=[],
+        help="comma-separated episode indices omitted from both training and validation",
+    )
     args = parser.parse_args()
 
     source = args.source.expanduser().resolve()
@@ -70,8 +76,17 @@ def main() -> int:
     validation_indices = args.validation_indices
     if validation_indices[-1] >= total_episodes:
         raise ValueError(f"validation index exceeds dataset range 0:{total_episodes}")
+    excluded_indices = args.exclude_indices
+    if excluded_indices and excluded_indices[-1] >= total_episodes:
+        raise ValueError(f"excluded index exceeds dataset range 0:{total_episodes}")
     validation_set = set(validation_indices)
-    train_indices = [index for index in range(total_episodes) if index not in validation_set]
+    excluded_set = set(excluded_indices)
+    if validation_set & excluded_set:
+        raise ValueError("validation and excluded indices overlap")
+    train_indices = [
+        index for index in range(total_episodes)
+        if index not in validation_set and index not in excluded_set
+    ]
     if not train_indices:
         raise ValueError("split leaves no training episodes")
 
@@ -107,6 +122,7 @@ def main() -> int:
         "total_episodes": total_episodes,
         "train_episode_indices": train_indices,
         "validation_episode_indices": validation_indices,
+        "excluded_episode_indices": excluded_indices,
         "train_frames": len(table),
         "note": "data/videos are shared; state/action stats use train episodes only",
     }
